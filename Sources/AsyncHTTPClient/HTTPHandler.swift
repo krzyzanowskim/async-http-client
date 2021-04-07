@@ -972,7 +972,10 @@ extension TaskHandler: ChannelDuplexHandler {
             }
             self.actualBodyLength += part.readableBytes
             context.writeAndFlush(self.wrapOutboundOut(.body(part)), promise: promise)
-        case .bodySentWaitingResponseHead, .bodySentResponseHeadReceived, .bufferedEnd, .endOrError:
+        case .bodySentResponseHeadReceived:
+            self.actualBodyLength += part.readableBytes
+            context.writeAndFlush(self.wrapOutboundOut(.body(part)), promise: promise)
+        case .bodySentWaitingResponseHead, .bufferedEnd, .endOrError:
             let error = HTTPClientError.writeAfterRequestSent
             self.errorCaught(context: context, error: error)
             promise.fail(error)
